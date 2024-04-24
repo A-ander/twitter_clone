@@ -10,6 +10,6 @@ class Media(Base):
     id = Column(Integer, primary_key=True)
     file = Column(String)
     type = Column(String(10))
-    tweet_id = Column(String, ForeignKey('tweets.id'), nullable=False)
+    tweet_id = Column(Integer, ForeignKey('tweets.id'), nullable=False)
     tweets = relationship('Tweet', back_populates='media')
     

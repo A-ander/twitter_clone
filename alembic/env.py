@@ -34,9 +34,9 @@ target_metadata = Base.metadata
 
 # update database URL
 config.set_main_option("sqlalchemy.url", settings.db_url)
-print(settings.db_url)
-with open('db_url.txt', 'w') as f:
-    f.write(settings.db_url)
+# print(settings.db_url)
+# with open('db_url.txt', 'w') as f:
+#     f.write(settings.db_url)
 
 
 def run_migrations_offline() -> None:
@@ -87,14 +87,19 @@ async def run_async_migrations() -> None:
 
     await connectable.dispose()
 
+# Existing configurations can be updated to use
+# an async DBAPI by updating the env.py file
+# that’s used by Alembic to start its operations.
+# In particular only run_migrations_online will need
+# to be updated to be something like the example below:
+
 
 def run_migrations_online() -> None:
     """Run migrations in 'online' mode."""
 
-    asyncio.run(run_async_migrations())
+    connectable = config.attributes.get("connection", None)
 
-
-if context.is_offline_mode():
-    run_migrations_offline()
-else:
-    run_migrations_online()
+    if connectable is None:
+        asyncio.run(run_async_migrations())
+    else:
+        do_run_migrations(connectable)
