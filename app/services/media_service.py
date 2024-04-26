@@ -3,13 +3,15 @@ import os
 from fastapi import UploadFile, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.database import get_db
+from app.db.database import get_session
 from app.db.models.media_model import Media
 from app.db.models.user_model import User
 
 
 async def upload_media_file(
-        file: UploadFile, current_user: User, session: AsyncSession = Depends(get_db)
+        file: UploadFile,
+        current_user: User,
+        session: AsyncSession = Depends(get_session)
 ):
     file_name = f"{current_user.id} {file.filename}"
     file_path = os.path.join("static", "upload", file_name)
