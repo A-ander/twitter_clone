@@ -6,7 +6,11 @@ from app.api.routes import media_routes, tweet_routes, user_routes
 from app.db.models.media_model import Media
 from app.db.models.tweet_model import Tweet, tweet_likes
 from app.db.models.user_model import User, user_followers
-
+# from app.db.models import (  # noqa: F401
+#     media_model,
+#     tweet_model,
+#     user_model,
+# )
 
 app = FastAPI()
 # Подключаем маршруты

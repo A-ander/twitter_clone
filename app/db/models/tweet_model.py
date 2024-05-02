@@ -3,7 +3,7 @@ from datetime import datetime, UTC
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, Table, Text
 from sqlalchemy.orm import relationship
 
-from ..database import Base
+from app.db.database import Base
 
 
 class Tweet(Base):

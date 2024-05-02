@@ -1,7 +1,7 @@
 from sqlalchemy import Column, ForeignKey, Integer, String, Table, Text
 from sqlalchemy.orm import relationship
 
-from ..database import Base
+from app.db.database import Base
 
 user_followers = Table(
     'user_followers',
