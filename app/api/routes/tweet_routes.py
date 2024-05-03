@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.schemas.tweet_schema import TweetSchema
+from app.api.schemas.tweet_schema import TweetSchema, TweetResponse
+from app.db.database import get_session
 from app.db.models.user_model import User
 from app.services.tweet_service import create_tweet_service
 from app.services.tweet_service import get_tweets_list_service
@@ -11,9 +13,15 @@ router = APIRouter()
 
 
 @router.get('/api/tweets', response_model=list[TweetSchema])
-async def get_tweets(user: User = Depends(get_current_user)) -> dict:
+async def get_tweets(
+        user: User = Depends(get_current_user),
+        session: AsyncSession = Depends(get_session)
+) -> dict:
     try:
-        tweets = await get_tweets_list_service(user)
+        tweets = await get_tweets_list_service(
+            user=user,
+            session=session
+        )
     except Exception as e:
         return {
             "result": False,
@@ -44,16 +52,19 @@ async def get_tweets(user: User = Depends(get_current_user)) -> dict:
     }
 
 
-@router.post('api/tweets', response_model=TweetSchema)
+@router.post('/api/tweets', response_model=TweetResponse)
 async def create_tweet(
         tweet_data: TweetSchema,
-        user: User = Depends(get_current_user)
+        user: User = Depends(get_current_user),
+        session: AsyncSession = Depends(get_session)
 ) -> dict:
-    # data validation
-    tweet_data = TweetSchema(**tweet_data.dict(exclude_unset=True))
+    tweet_content = tweet_data.tweet_data
+    tweet_media_ids = tweet_data.tweet_media_ids
 
     tweet = await create_tweet_service(
         user=user,
-        tweet_data=tweet_data.dict()
+        tweet_content=tweet_content,
+        tweet_media_ids=tweet_media_ids,
+        session=session
     )
     return {"result": True, "tweet_id": tweet.id}

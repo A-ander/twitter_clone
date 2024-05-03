@@ -1,6 +1,4 @@
-from datetime import datetime, UTC
-
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, Table, Text
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, Table, Text, func
 from sqlalchemy.orm import relationship
 
 from app.db.database import Base
@@ -11,7 +9,7 @@ class Tweet(Base):
 
     id = Column(Integer, primary_key=True)
     content = Column(Text, nullable=False)
-    created_at = Column(DateTime, default=datetime.now(UTC))
+    created_at = Column(DateTime, default=func.timezone('UTC', func.now()))
     author_id = Column(Integer, ForeignKey('users.id'), nullable=False)
 
     author = relationship('User', back_populates='tweets')

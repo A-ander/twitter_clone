@@ -1,15 +1,13 @@
-from fastapi import Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.database import get_session
 from app.db.models.user_model import User
 
 
 async def follow_user(
         current_user: User,
         user_id: int,
-        session: AsyncSession = Depends(get_session)
+        session: AsyncSession
 ):
     user = await session.get(User, user_id)
     if user not in current_user.following:
@@ -20,7 +18,7 @@ async def follow_user(
 async def unfollow_user(
         current_user: User,
         user_id: int,
-        session: AsyncSession = Depends(get_session)
+        session: AsyncSession
 ):
     user = await session.get(User, user_id)
     if user in current_user.following:
@@ -52,7 +50,7 @@ async def get_user_profile(current_user: User):
 
 async def get_user_by_id(
         user_id: int,
-        session: AsyncSession = Depends(get_session)
+        session: AsyncSession
 ):
     user = await session.scalar(select(User).where(User.c.id == user_id))
     return await get_user_profile(user)

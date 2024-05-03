@@ -1,8 +1,6 @@
-from fastapi import Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.database import get_session
 from app.db.models.media_model import Media
 from app.db.models.tweet_model import Tweet
 from app.db.models.user_model import User
@@ -10,27 +8,26 @@ from app.db.models.user_model import User
 
 async def get_tweets_list_service(
         user: User,
-        session: AsyncSession = Depends(get_session)
+        session: AsyncSession
 ) -> list[Tweet]:
     followed_users = user.following
-    tweets = await session.scalars(
+    result = await session.execute(
         select(Tweet)
         .where(Tweet.author.in_(followed_users))
         .order_by(Tweet.created_at.desc())
-    ).all()  # Убрать all()?
+    )
+    tweets = result.scalars().all()
     return tweets
 
 
 async def create_tweet_service(
         user: User,
-        tweet_data: dict,
-        session: AsyncSession = Depends(get_session)
-) -> Tweet.id:
-    tweet_content = tweet_data.get('tweet_data')
-    tweet_media_ids = tweet_data.get('tweet_media_ids', [])
+        tweet_content: str,
+        tweet_media_ids: list[int],
+        session: AsyncSession
+) -> Tweet:
 
-    # Получаем объекты Media из базы данных по их идентификаторам
-    media_objects = [session.get(Media, media_id) for media_id in tweet_media_ids]
+    media_objects = [await session.get(Media, media_id) for media_id in tweet_media_ids]
 
     tweet = Tweet(
         content=tweet_content,
@@ -42,4 +39,4 @@ async def create_tweet_service(
     await session.commit()
     await session.refresh(tweet)
 
-    return tweet.id
+    return tweet

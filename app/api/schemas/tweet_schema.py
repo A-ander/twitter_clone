@@ -1,18 +1,17 @@
-from datetime import datetime
-from typing import Optional
-
 from pydantic import BaseModel
-
-from .user_schema import UserSchema
-from .media_schema import MediaSchema
 
 
 class TweetSchema(BaseModel):
-    content: str
-    created_at: Optional[datetime]
-    author: UserSchema
-    media: list[MediaSchema] = []
-    likes: list[UserSchema] = []
+    tweet_data: str
+    tweet_media_ids: list[int] = []
+
+    class Config:
+        from_attributes = True
+
+
+class TweetResponse(BaseModel):
+    result: bool
+    tweet_id: int
 
     class Config:
         from_attributes = True
