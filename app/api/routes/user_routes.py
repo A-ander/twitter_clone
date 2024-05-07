@@ -34,8 +34,11 @@ async def unfollow(
 
 
 @router.get('/me', response_model=dict)
-async def get_my_profile(current_user=Depends(get_current_user)):
-    return await get_user_profile(current_user)
+async def get_my_profile(
+        current_user=Depends(get_current_user),
+        session=Depends(get_session)
+):
+    return await get_user_profile(current_user, session)
 
 
 @router.get('/{user_id}', response_model=dict)
