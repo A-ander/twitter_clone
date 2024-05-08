@@ -1,3 +1,5 @@
+from typing import Union
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -12,7 +14,7 @@ from app.utils.utils import get_current_user
 router = APIRouter()
 
 
-@router.get('/api/tweets', response_model=list[TweetSchema])
+@router.get('/api/tweets', response_model=Union[list[TweetSchema], dict])
 async def get_tweets(
         user: User = Depends(get_current_user),
         session: AsyncSession = Depends(get_session)
