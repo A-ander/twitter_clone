@@ -19,17 +19,17 @@ async def get_tweets(
         user: User = Depends(get_current_user),
         session: AsyncSession = Depends(get_session)
 ) -> dict:
-    try:
-        tweets = await get_tweets_list_service(
-            user=user,
-            session=session
-        )
-    except Exception as e:
-        return {
-            "result": False,
-            "error": e.__class__.__name__,
-            "error_message": str(e)
-        }
+    # try:
+    tweets = await get_tweets_list_service(
+        user=user,
+        session=session
+    )
+    # except Exception as e:
+    #     return {
+    #         "result": False,
+    #         "error": e.__class__.__name__,
+    #         "error_message": str(e)
+    #     }
 
     return {
         "result": True,

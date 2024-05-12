@@ -12,9 +12,9 @@ class Tweet(Base):
     created_at = Column(DateTime, default=func.timezone('UTC', func.now()))
     author_id = Column(Integer, ForeignKey('users.id'), nullable=False)
 
-    author = relationship('User', back_populates='tweets')
-    media = relationship('Media', back_populates='tweets')
-    likes = relationship('User', secondary='tweet_likes', back_populates='liked_tweets')
+    author = relationship('User', back_populates='tweets', lazy="selectin")
+    media = relationship('Media', back_populates='tweets', lazy="selectin")
+    likes = relationship('User', secondary='tweet_likes', back_populates='liked_tweets', lazy="selectin")
 
 
 tweet_likes = Table(

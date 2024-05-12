@@ -11,5 +11,5 @@ class Media(Base):
     file = Column(String)
     type = Column(String(10))
     tweet_id = Column(Integer, ForeignKey('tweets.id'), nullable=False)
-    tweets = relationship('Tweet', back_populates='media')
+    tweets = relationship('Tweet', back_populates='media', lazy='selectin')
     

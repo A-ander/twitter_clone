@@ -18,20 +18,22 @@ class User(Base):
     name = Column(String, nullable=False)
     api_key = Column(Text, unique=True)
 
-    tweets = relationship('Tweet', back_populates='author')
-    liked_tweets = relationship('Tweet', secondary='tweet_likes', back_populates='likes')
+    tweets = relationship('Tweet', back_populates='author', lazy='selectin')
+    liked_tweets = relationship('Tweet', secondary='tweet_likes', back_populates='likes', lazy='selectin')
 
     followers = relationship(
         'User',
         secondary=user_followers,
         primaryjoin=(id == user_followers.c.followed_id),
         secondaryjoin=(id == user_followers.c.follower_id),
-        back_populates='following'
+        back_populates='following',
+        lazy='joined'
     )
     following = relationship(
         'User',
         secondary=user_followers,
         primaryjoin=(id == user_followers.c.follower_id),
         secondaryjoin=(id == user_followers.c.followed_id),
-        back_populates='followers'
+        back_populates='followers',
+        lazy='joined'
     )

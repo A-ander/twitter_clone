@@ -9,6 +9,7 @@ from app.db.models.user_model import User, user_followers  # noqa
 
 
 app = FastAPI()
+
 # Подключаем маршруты
 app.include_router(media_routes.router)
 app.include_router(tweet_routes.router)

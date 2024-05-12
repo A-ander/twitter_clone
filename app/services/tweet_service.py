@@ -11,13 +11,12 @@ async def get_tweets_list_service(
         session: AsyncSession
 ) -> list[Tweet]:
     followed_users = user.following
-    result = await session.execute(
+    tweets = await session.scalars(
         select(Tweet)
         .where(Tweet.author.in_(followed_users))
         .order_by(Tweet.created_at.desc())
     )
-    tweets = result.scalars().all()
-    return tweets
+    return list(tweets)
 
 
 async def create_tweet_service(
