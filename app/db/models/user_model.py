@@ -27,7 +27,7 @@ class User(Base):
         primaryjoin=(id == user_followers.c.followed_id),
         secondaryjoin=(id == user_followers.c.follower_id),
         back_populates='following',
-        lazy='joined'
+        lazy='write_only'
     )
     following = relationship(
         'User',
@@ -35,5 +35,5 @@ class User(Base):
         primaryjoin=(id == user_followers.c.follower_id),
         secondaryjoin=(id == user_followers.c.followed_id),
         back_populates='followers',
-        lazy='joined'
+        lazy='write_only'
     )

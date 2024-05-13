@@ -1,5 +1,6 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.db.models.media_model import Media
 from app.db.models.tweet_model import Tweet
@@ -10,13 +11,19 @@ async def get_tweets_list_service(
         user: User,
         session: AsyncSession
 ) -> list[Tweet]:
-    followed_users = user.following
-    tweets = await session.scalars(
+    following_result = await session.execute(user.following.select())
+    followed_user_ids = [u.id for u in following_result.scalars()]
+    # Add the current user's ID, so they can see their tweets
+    followed_user_ids.append(user.id)
+
+    result = await session.scalars(
         select(Tweet)
-        .where(Tweet.author.in_(followed_users))
+        .options(selectinload(Tweet.author))
+        .where(Tweet.author_id.in_(followed_user_ids))
         .order_by(Tweet.created_at.desc())
     )
-    return list(tweets)
+    tweets = result.all()
+    return tweets
 
 
 async def create_tweet_service(
@@ -25,7 +32,6 @@ async def create_tweet_service(
         tweet_media_ids: list[int],
         session: AsyncSession
 ) -> Tweet:
-
     media_objects = [await session.get(Media, media_id) for media_id in tweet_media_ids]
 
     tweet = Tweet(

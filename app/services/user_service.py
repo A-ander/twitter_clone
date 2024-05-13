@@ -1,8 +1,6 @@
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
 
-from app.db.models.user_model import User, user_followers
+from app.db.models.user_model import User
 
 
 async def follow_user(
@@ -28,11 +26,14 @@ async def unfollow_user(
 
 
 async def get_user_profile(current_user: User, session: AsyncSession):
-    user = await session.scalar(
-        select(User)
-        .options(joinedload(User.followers), joinedload(User.following))
-        .where(User.id == current_user.id)
-    )
+    user = await session.get(User, current_user.id)
+
+    followers_result = await session.execute(user.followers.select())
+    following_result = await session.execute(user.following.select())
+
+    # Retrieve users from the results
+    followers = followers_result.scalars().all()
+    following = following_result.scalars().all()
 
     return {
         "result": True,
@@ -43,13 +44,13 @@ async def get_user_profile(current_user: User, session: AsyncSession):
                 {
                     "id": follower.id,
                     "name": follower.name
-                } for follower in user.followers
+                } for follower in followers
             ],
             "following": [
                 {
                     "id": following_user.id,
                     "name": following_user.name
-                } for following_user in user.following
+                } for following_user in following
             ]
         }
     }
