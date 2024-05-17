@@ -1,9 +1,5 @@
-from pydantic import BaseModel
+from app.api.schemas.result import Result
 
 
-class MediaSchema(BaseModel):
-    file: str
-    type: str
-
-    class Config:
-        from_attributes = True
+class MediaSchema(Result):
+    media_id: int

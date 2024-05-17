@@ -1,4 +1,6 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
+from fastapi.exceptions import RequestValidationError, ResponseValidationError
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -10,19 +12,36 @@ from app.db.models.user_model import User, user_followers  # noqa
 
 app = FastAPI()
 
-# Подключаем маршруты
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return JSONResponse(
+        {"result": False, "error_type": "validation_error", "error_message": str(exc)}
+    )
+
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    return JSONResponse(
+        {"result": False, "error_type": "http_error", "error_message": str(exc)}
+    )
+
+
+@app.exception_handler(ResponseValidationError)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    return JSONResponse(
+        {"result": False, "error_type": "response_error", "error_message": str(exc)}
+    )
+
 app.include_router(media_routes.router)
 app.include_router(tweet_routes.router)
 app.include_router(user_routes.router)
 
-# Подключение статических файлов
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
 
-# Подключение шаблонов Jinja2
 templates = Jinja2Templates(directory="static")
 
 
-# Корневой маршрут для отображения index.html
 @app.get("/")
 async def root(request: Request):
     return templates.TemplateResponse("index.html", context={"request": request})

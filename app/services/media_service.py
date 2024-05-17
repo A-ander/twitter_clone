@@ -12,7 +12,7 @@ async def upload_media_file(
         current_user: User,
         session: AsyncSession
 ):
-    file_name = f"{current_user.id} {file.filename}"
+    file_name = f"{current_user.id}.{file.filename}"
     file_path = os.path.join("static", "upload", file_name)
 
     with open(file_path, "wb") as buffer:

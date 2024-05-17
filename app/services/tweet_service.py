@@ -45,3 +45,34 @@ async def create_tweet_service(
     await session.refresh(tweet)
 
     return tweet
+
+
+async def delete_tweet_service(tweet: Tweet, session: AsyncSession):
+    await session.delete(tweet)
+    await session.commit()
+
+
+async def like_tweet_service(tweet: Tweet, user: User, session: AsyncSession):
+    tweet_query = await session.execute(
+        select(Tweet)
+        .options(selectinload(Tweet.likes))
+        .where(Tweet.id == tweet.id)
+    )
+    tweet = tweet_query.scalar_one_or_none()
+
+    if user not in tweet.likes:
+        tweet.likes.append(user)
+        await session.commit()
+
+
+async def unlike_tweet_service(tweet: Tweet, user: User, session: AsyncSession):
+    tweet_query = await session.execute(
+        select(Tweet)
+        .options(selectinload(Tweet.likes))
+        .where(Tweet.id == tweet.id)
+    )
+    tweet = tweet_query.scalar_one_or_none()
+
+    if user in tweet.likes:
+        tweet.likes.remove(user)
+        await session.commit()
