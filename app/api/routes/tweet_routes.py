@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.schemas.result import Result
-from app.api.schemas.tweet_schema import TweetCreateSchema, TweetResponse, TweetResult
+from app.api.schemas.tweet_schema import TweetCreateSchema, TweetResponse, TweetResult, TweetSchema, TweetLikesSchema
 from app.db.database import get_session
 from app.db.models.tweet_model import Tweet
 from app.db.models.user_model import User
@@ -24,7 +24,24 @@ async def get_tweets(
         session: AsyncSession = Depends(get_session)
 ):
     tweets = await get_tweets_list_service(user=user, session=session)
-    return TweetResponse(result=True, tweets=tweets)
+    tweet_schemas = [
+        TweetSchema(
+            id=tweet.id,
+            content=tweet.content,
+            attachments=[f"/static/upload/{tweet.author.id}.{media.file}" for media in tweet.media],
+            author={
+                "id": tweet.author.id,
+                "name": tweet.author.name
+            },
+            likes=[
+                TweetLikesSchema(
+                    user_id=liked_user.id,
+                    name=liked_user.name
+                ) for liked_user in tweet.likes
+            ]
+        ) for tweet in tweets
+    ]
+    return TweetResponse(result=True, tweets=tweet_schemas)
 
 
 @router.post('', response_model=TweetResult)

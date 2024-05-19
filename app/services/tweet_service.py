@@ -11,8 +11,14 @@ async def get_tweets_list_service(
         user: User,
         session: AsyncSession
 ) -> list[Tweet]:
-    following_result = await session.execute(user.following.select())
-    followed_user_ids = [u.id for u in following_result.scalars()]
+    # Explicitly load users that the current user is subscribed to
+    current_user = await session.execute(
+        select(User).options(selectinload(User.following)).where(User.id == user.id)
+    )
+    current_user = current_user.scalars().first()
+
+    # Get the list of user IDs the current user is subscribed to
+    followed_user_ids = [u.id for u in current_user.following]
     # Add the current user's ID, so they can see their tweets
     followed_user_ids.append(user.id)
 
@@ -63,6 +69,7 @@ async def like_tweet_service(tweet: Tweet, user: User, session: AsyncSession):
     if user not in tweet.likes:
         tweet.likes.append(user)
         await session.commit()
+        await session.refresh(tweet)
 
 
 async def unlike_tweet_service(tweet: Tweet, user: User, session: AsyncSession):
@@ -76,3 +83,4 @@ async def unlike_tweet_service(tweet: Tweet, user: User, session: AsyncSession):
     if user in tweet.likes:
         tweet.likes.remove(user)
         await session.commit()
+        await session.refresh(tweet)

@@ -14,12 +14,20 @@ class TweetCreateSchema(BaseModel):
         from_attributes = True
 
 
+class TweetLikesSchema(BaseModel):
+    user_id: int
+    name: str
+
+    class Config:
+        from_attributes = True
+
+
 class TweetSchema(BaseModel):
     id: int
     content: str
     attachments: Optional[list[str]] = []
     author: UserSchema
-    likes: list[UserSchema]
+    likes: list[TweetLikesSchema]
 
     class Config:
         from_attributes = True

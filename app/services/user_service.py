@@ -1,4 +1,6 @@
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.api.schemas.user_schema import UserFullSchema, UserSchema
 from app.db.models.user_model import User
@@ -10,6 +12,11 @@ async def follow_user(
         session: AsyncSession
 ):
     user = await session.get(User, user_id)
+    current_user = await session.execute(
+        select(User).options(selectinload(User.following)).where(User.id == current_user.id)
+    )
+    current_user = current_user.scalars().first()
+
     if user not in current_user.following:
         current_user.following.append(user)
         await session.commit()
@@ -21,20 +28,26 @@ async def unfollow_user(
         session: AsyncSession
 ):
     user = await session.get(User, user_id)
+    current_user = await session.execute(
+        select(User).options(selectinload(User.following)).where(User.id == current_user.id)
+    )
+    current_user = current_user.scalars().first()
+
     if user in current_user.following:
         current_user.following.remove(user)
         await session.commit()
 
 
 async def get_user_profile(chosen_user: User, session: AsyncSession):
-    user = await session.get(User, chosen_user.id)
+    user = await session.execute(
+        select(User)
+        .options(selectinload(User.followers), selectinload(User.following))
+        .where(User.id == chosen_user.id)
+    )
+    user = user.scalars().first()
 
-    followers_result = await session.execute(user.followers.select())
-    following_result = await session.execute(user.following.select())
-
-    # Retrieve users from the results
-    followers = followers_result.scalars().all()
-    following = following_result.scalars().all()
+    followers = user.followers
+    following = user.following
 
     return UserFullSchema(
         id=user.id,
@@ -50,23 +63,3 @@ async def get_user_by_id(
 ):
     user: User | None = await session.get(User, user_id)
     return await get_user_profile(user, session)
-
-
-# async def follow_user_service(
-#         current_user: User,
-#         followed_user: User,
-#         session: AsyncSession,
-# ):
-#     if followed_user not in current_user.following:
-#         current_user.following.append(followed_user)
-#         await session.commit()
-#
-#
-# async def unfollow_user_service(
-#         current_user: User,
-#         followed_user: User,
-#         session: AsyncSession,
-# ):
-#     if followed_user in current_user.following:
-#         current_user.following.remove(followed_user)
-#         await session.commit()

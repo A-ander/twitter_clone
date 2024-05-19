@@ -13,24 +13,27 @@ from app.db.models.user_model import User, user_followers  # noqa
 app = FastAPI()
 
 
-@app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    return JSONResponse(
-        {"result": False, "error_type": "validation_error", "error_message": str(exc)}
-    )
-
-
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exc: HTTPException):
     return JSONResponse(
-        {"result": False, "error_type": "http_error", "error_message": str(exc)}
+        {"result": False, "error_type": "http_error", "error_message": exc.detail},
+        status_code=exc.status_code
+    )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return JSONResponse(
+        {"result": False, "error_type": "validation_error", "error_message": str(exc.errors())},
+        status_code=400,
     )
 
 
 @app.exception_handler(ResponseValidationError)
-async def http_exception_handler(request: Request, exc: HTTPException):
+async def response_validation_exception_handler(request: Request, exc: ResponseValidationError):
     return JSONResponse(
-        {"result": False, "error_type": "response_error", "error_message": str(exc)}
+        {"result": False, "error_type": "response_error", "error_message": str(exc.errors())},
+        status_code=500,
     )
 
 app.include_router(media_routes.router)
