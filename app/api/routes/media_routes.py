@@ -6,10 +6,10 @@ from app.db.database import get_session
 from app.services.media_service import upload_media_file
 from app.utils.utils import get_current_user
 
-router = APIRouter(prefix="/api/medias", tags=["Media"])
+router = APIRouter(prefix="/api/medias", tags=["media"])
 
 
-@router.post('/', response_model=MediaSchema)
+@router.post('', response_model=MediaSchema)
 async def upload_media(
         file: UploadFile = File(...),
         current_user=Depends(get_current_user),

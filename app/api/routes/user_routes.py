@@ -1,17 +1,14 @@
-from fastapi import APIRouter, Depends, Path, HTTPException
+from fastapi import APIRouter, Depends, Path
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.schemas.result import Result
 from app.api.schemas.user_schema import UserResponse
 from app.db.database import get_session
-from app.db.models.user_model import User
 from app.services.user_service import (
     get_user_by_id,
     get_user_profile,
     follow_user,
     unfollow_user,
-    # follow_user_service,
-    # unfollow_user_service,
 )
 from app.utils.utils import get_current_user
 

@@ -1,5 +1,6 @@
 import os
 
+import aiofiles
 from fastapi import UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -12,18 +13,14 @@ async def upload_media_file(
         current_user: User,
         session: AsyncSession
 ):
-    file_name = f"{current_user.id}.{file.filename}"
+    file_name = f"{current_user.id}_{file.filename}"
     file_path = os.path.join("static", "upload", file_name)
 
-    with open(file_path, "wb") as buffer:
+    async with aiofiles.open(file_path, "wb") as buffer:
         contents = await file.read()
-        buffer.write(contents)
+        await buffer.write(contents)
 
-    media = Media(
-        file=file_name,
-        type=file.content_type,
-        user=current_user
-    )
+    media = Media(file_path=file_path)
     session.add(media)
     await session.commit()
     await session.refresh(media)

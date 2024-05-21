@@ -8,7 +8,7 @@ from app.api.schemas.user_schema import UserSchema
 
 class TweetCreateSchema(BaseModel):
     tweet_data: str
-    tweet_media_ids: Optional[list[int]] = []
+    tweet_media_ids: list[int] = []
 
     class Config:
         from_attributes = True
@@ -25,7 +25,7 @@ class TweetLikesSchema(BaseModel):
 class TweetSchema(BaseModel):
     id: int
     content: str
-    attachments: Optional[list[str]] = []
+    attachments: list[str]
     author: UserSchema
     likes: list[TweetLikesSchema]
 

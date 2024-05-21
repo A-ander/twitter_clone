@@ -1,15 +1,19 @@
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Column, Integer, String, Table, ForeignKey
 from sqlalchemy.orm import relationship
 
 from app.db.database import Base
 
+# Association table for many-to-many relationship between Tweet and Media
+tweet_media_association = Table(
+    'tweet_media_association',
+    Base.metadata,
+    Column('tweet_id', Integer, ForeignKey('tweets.id'), primary_key=True),
+    Column('media_id', Integer, ForeignKey('media.id'), primary_key=True)
+)
+
 
 class Media(Base):
     __tablename__ = 'media'
-
-    id = Column(Integer, primary_key=True)
-    file = Column(String)
-    type = Column(String(10))
-    tweet_id = Column(Integer, ForeignKey('tweets.id'), nullable=False)
-    tweets = relationship('Tweet', back_populates='media', lazy='selectin')
-    
+    id = Column(Integer, primary_key=True, index=True)
+    file_path = Column(String, nullable=False)
+    tweet = relationship("Tweet", secondary=tweet_media_association, back_populates="media")

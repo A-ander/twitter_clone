@@ -28,7 +28,7 @@ async def get_tweets(
         TweetSchema(
             id=tweet.id,
             content=tweet.content,
-            attachments=[f"/static/upload/{tweet.author.id}.{media.file}" for media in tweet.media],
+            attachments=[media.file_path for media in tweet.media],
             author={
                 "id": tweet.author.id,
                 "name": tweet.author.name
