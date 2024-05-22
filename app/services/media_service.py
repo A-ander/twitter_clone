@@ -13,8 +13,8 @@ async def upload_media_file(
         current_user: User,
         session: AsyncSession
 ):
-    file_name = f"{current_user.id}_{file.filename}"
-    file_path = os.path.join("static", "upload", file_name)
+    file_name = f"{current_user.id}_{file.filename}".replace(" ", "_")
+    file_path = os.path.join("/app/static/upload", file_name)
 
     async with aiofiles.open(file_path, "wb") as buffer:
         contents = await file.read()
