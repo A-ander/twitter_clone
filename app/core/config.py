@@ -37,6 +37,11 @@ class TestSettings(Settings):
         self.db_name = os.environ["POSTGRES_NAME_TEST"]
         self.db_user = os.environ["POSTGRES_USER_TEST"]
         self.db_pass = os.environ["POSTGRES_PASSWORD_TEST"]
+        self.db_url = (
+            f"postgresql+asyncpg://{self.db_user}:"
+            f"{self.db_pass}@{self.db_host}:"
+            f"{self.db_port}/{self.db_name}"
+        )
 
 
 settings = DevSettings()
