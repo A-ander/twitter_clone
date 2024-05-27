@@ -10,7 +10,7 @@ class TweetCreateSchema(BaseModel):
     tweet_data: str
     tweet_media_ids: list[int] = []
 
-    class Config:
+    class ConfigDict:
         from_attributes = True
 
 
@@ -18,7 +18,7 @@ class TweetLikesSchema(BaseModel):
     user_id: int
     name: str
 
-    class Config:
+    class ConfigDict:
         from_attributes = True
 
 
@@ -29,7 +29,7 @@ class TweetSchema(BaseModel):
     author: UserSchema
     likes: list[TweetLikesSchema]
 
-    class Config:
+    class ConfigDict:
         from_attributes = True
 
 
