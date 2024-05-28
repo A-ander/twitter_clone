@@ -1,12 +1,13 @@
 import pytest
 from httpx import AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models.tweet_model import Tweet
 from app.db.models.user_model import User
 
 
 @pytest.mark.asyncio
-async def test_create_tweet(client: AsyncClient, test_user: User):
+async def test_create_tweet(client: AsyncClient, test_user: User, test_session: AsyncSession):
     response = await client.post(
         "/api/tweets",
         json={
@@ -22,7 +23,7 @@ async def test_create_tweet(client: AsyncClient, test_user: User):
 
 
 @pytest.mark.asyncio
-async def test_get_tweets(client: AsyncClient, test_user: User):
+async def test_get_tweets(client: AsyncClient, test_user: User, test_session: AsyncSession):
     response = await client.get(
         "/api/tweets",
         headers={"Api-Key": test_user.api_key}

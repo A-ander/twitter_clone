@@ -41,7 +41,7 @@ services:
       POSTGRES_PORT: ${POSTGRES_PORT_TEST}
       POSTGRES_NAME: ${POSTGRES_NAME_TEST}
     ports:
-      - "${POSTGRES_PORT_TEST}:${POSTGRES_PORT_TEST}"
+      - "${POSTGRES_PORT_TEST}:${POSTGRES_PORT}"
     env_file:
       - .env
 
