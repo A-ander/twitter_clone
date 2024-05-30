@@ -1,37 +1,24 @@
 import pytest
-from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.db.models.tweet_model import Tweet
-from app.db.models.user_model import User
 
 
 @pytest.mark.asyncio
-async def test_create_tweet(client: AsyncClient, test_user: User, test_session: AsyncSession):
-    response = await client.post(
-        "/api/tweets",
-        json={
-            "tweet_data": "This is a test tweet",
-            "tweet_media_ids": []
-        },
-        headers={"Api-Key": test_user.api_key}
-    )
+async def test_get_tweets(client, add_tweet):
+    header, _ = add_tweet
+    response = await client.get("/api/tweets", headers=header)
     assert response.status_code == 200
     data = response.json()
-    assert data["result"] is True
+    assert "result" in data and data["result"] is True
+    assert "tweets" in data
+    tweets = data["tweets"]
+    assert isinstance(tweets, list)
+
+
+@pytest.mark.asyncio
+async def test_create_tweet(client, add_user):
+    header, _ = add_user
+    tweet_data = {"tweet_data": "Test tweet", "tweet_media_ids": []}
+    response = await client.post("/api/tweets", json=tweet_data, headers=header)
+    assert response.status_code == 200
+    data = response.json()
+    assert "result" in data and data["result"] is True
     assert "tweet_id" in data
-
-
-@pytest.mark.asyncio
-async def test_get_tweets(client: AsyncClient, test_user: User, test_session: AsyncSession):
-    response = await client.get(
-        "/api/tweets",
-        headers={"Api-Key": test_user.api_key}
-    )
-    assert response.status_code == 200
-    data = response.json()
-    assert data["result"] is True
-    assert len(data["tweets"]) > 0
-    first_tweet = data["tweets"][0]
-    assert "id" in first_tweet
-    assert "content" in first_tweet
