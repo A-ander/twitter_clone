@@ -5,7 +5,7 @@ from typing import AsyncGenerator
 import pytest_asyncio
 from fastapi import UploadFile
 from httpx import AsyncClient, ASGITransport
-from sqlalchemy import NullPool, select
+from sqlalchemy import NullPool, delete
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
@@ -20,30 +20,30 @@ from app.db.models.user_model import User
 from app.main import app
 
 test_db = TestSettings().db_url
-engine = create_async_engine(test_db, future=True, echo=True, poolclass=NullPool)
+engine = create_async_engine(test_db, future=True, poolclass=NullPool)
 async_session = async_sessionmaker(
-    engine, expire_on_commit=False, class_=AsyncSession
+    engine, expire_on_commit=False, class_=AsyncSession, autoflush=False
 )
 
 
 async def override_get_session():
     async with async_session() as session:
         yield session
-    await session.close()
 
 app.dependency_overrides[get_session] = override_get_session
 
 
-@pytest_asyncio.fixture(scope="session")
+@pytest_asyncio.fixture(scope="session", autouse=True)
 async def init_db():
     """Fixture to create tables in test database"""
     async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
     yield
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
 
 
-@pytest_asyncio.fixture
+@pytest_asyncio.fixture(scope="session")
 async def client(init_db) -> AsyncGenerator[AsyncClient, None]:
     """Fixture for HTTP client for requests"""
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as async_client:
@@ -59,24 +59,14 @@ async def test_session(init_db):
 @pytest_asyncio.fixture
 async def add_user(test_session):
     """Fixture to add a new user to the database"""
-    unique_api_key = str(uuid.uuid4())
-    new_user = User(name='Test User', api_key=unique_api_key)
+    new_user = User(name='Test User', api_key=str(uuid.uuid4()))
     test_session.add(new_user)
     await test_session.commit()
     await test_session.refresh(new_user)
     header = {'api-key': new_user.api_key}
     yield header, new_user.id
-    # Deleting linked tweets
-    tweets = await test_session.scalars(
-        select(Tweet)
-        .filter(Tweet.author_id == new_user.id)
-    )
-    for tweet in tweets:
-        await test_session.delete(tweet)
-    for tweet in tweets:
-        await test_session.delete(tweet)
-    await test_session.commit()
-    # Delete user
+    # Delete all tweets associated with the user before deleting the user
+    await test_session.execute(delete(Tweet).where(Tweet.author_id == new_user.id))
     await test_session.delete(new_user)
     await test_session.commit()
 
