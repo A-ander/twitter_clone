@@ -56,6 +56,11 @@ async def test_session(init_db):
         yield session
 
 
+def true_response(response):
+    assert response.status_code == 200
+    assert 'result' in response.json() and response.json()['result'] is True
+
+
 @pytest_asyncio.fixture
 async def add_user(test_session):
     """Fixture to add a new user to the database"""
@@ -65,10 +70,6 @@ async def add_user(test_session):
     await test_session.refresh(new_user)
     header = {'api-key': new_user.api_key}
     yield header, new_user.id
-    # Delete all tweets associated with the user before deleting the user
-    await test_session.execute(delete(Tweet).where(Tweet.author_id == new_user.id))
-    await test_session.delete(new_user)
-    await test_session.commit()
 
 
 @pytest_asyncio.fixture
@@ -80,8 +81,6 @@ async def add_tweet(test_session, add_user):
     await test_session.commit()
     await test_session.refresh(new_tweet)
     yield header, new_tweet.id
-    await test_session.delete(new_tweet)
-    await test_session.commit()
 
 
 @pytest_asyncio.fixture
@@ -94,5 +93,3 @@ async def add_media(test_session, add_user):
     await test_session.commit()
     await test_session.refresh(new_media)
     yield header, new_media.id
-    await test_session.delete(new_media)
-    await test_session.commit()
