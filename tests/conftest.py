@@ -1,11 +1,12 @@
 import os
+import shutil
 import uuid
 from typing import AsyncGenerator
 
+import aiofiles
 import pytest_asyncio
-from fastapi import UploadFile
 from httpx import AsyncClient, ASGITransport
-from sqlalchemy import NullPool, delete
+from sqlalchemy import NullPool
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
@@ -29,6 +30,7 @@ async_session = async_sessionmaker(
 async def override_get_session():
     async with async_session() as session:
         yield session
+
 
 app.dependency_overrides[get_session] = override_get_session
 
@@ -81,15 +83,3 @@ async def add_tweet(test_session, add_user):
     await test_session.commit()
     await test_session.refresh(new_tweet)
     yield header, new_tweet.id
-
-
-@pytest_asyncio.fixture
-async def add_media(test_session, add_user):
-    """Fixture to add a new media file to the database"""
-    header, user_id = add_user
-    file_path = os.path.join("/static", f"{user_id}_test_image.jpg")
-    new_media = Media(file_path=file_path)
-    test_session.add(new_media)
-    await test_session.commit()
-    await test_session.refresh(new_media)
-    yield header, new_media.id
