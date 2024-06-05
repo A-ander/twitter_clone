@@ -1,3 +1,5 @@
+import traceback
+
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.exceptions import RequestValidationError, ResponseValidationError
 from fastapi.responses import JSONResponse
@@ -29,11 +31,12 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     )
 
 
-@app.exception_handler(ResponseValidationError)
-async def response_validation_exception_handler(request: Request, exc: ResponseValidationError):
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    error_message = traceback.format_exc()
     return JSONResponse(
-        {"result": False, "error_type": "response_error", "error_message": str(exc.errors())},
-        status_code=500,
+        {"result": False, "error_type": "internal_server_error", "error_message": error_message},
+        status_code=500
     )
 
 app.include_router(media_routes.router)

@@ -10,7 +10,7 @@ async def test_upload_media(client, add_user):
     header, user_id = add_user
 
     get_test_image = await client.get("https://cataas.com/cat")
-    test_image = await get_test_image.read()
+    test_image = get_test_image.read()
 
     response = await client.post(
         '/api/medias', headers=header,
