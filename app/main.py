@@ -43,11 +43,11 @@ app.include_router(media_routes.router)
 app.include_router(tweet_routes.router)
 app.include_router(user_routes.router)
 
-app.mount("/", StaticFiles(directory="static", html=True), name="static")
-
-templates = Jinja2Templates(directory="static")
-
-
-@app.get("/")
-async def root(request: Request):
-    return templates.TemplateResponse("index.html", context={"request": request})
+# app.mount("/", StaticFiles(directory="static", html=True), name="static")
+#
+# templates = Jinja2Templates(directory="static")
+#
+#
+# @app.get("/")
+# async def root(request: Request):
+#     return templates.TemplateResponse("index.html", context={"request": request})

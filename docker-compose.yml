@@ -1,19 +1,28 @@
 version: '3.8'
 
+volumes:
+  postgres-data:
+
+networks:
+  fastapi_twitter:
+    driver: bridge
+
 services:
   web:
     container_name: twitter
     build:
       context: .
       dockerfile: Dockerfile
-    volumes:
-      - static:/app/static
     ports:
       - "8000:8000"
     env_file:
       - .env
+    volumes:
+      - ./static/images:/app/static/images
     depends_on:
       - db
+    networks:
+      - fastapi_twitter
 
   db:
     container_name: postgres_db
@@ -29,6 +38,8 @@ services:
       - postgres-data:/var/lib/postgresql/data
     env_file:
       - .env
+    networks:
+      - fastapi_twitter
 
   postgres_test:
     container_name: postgres_db_test
@@ -44,6 +55,8 @@ services:
       - "${POSTGRES_PORT_TEST}:${POSTGRES_PORT}"
     env_file:
       - .env
+    networks:
+      - fastapi_twitter
 
   nginx:
     container_name: nginx
@@ -51,12 +64,11 @@ services:
     ports:
       - "80:80"
     volumes:
-      - static:/app/static
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./static:/var/www/app/static
+      - ./static/images:/var/www/app/static/images
     restart: always
     depends_on:
       - web
-
-volumes:
-  postgres-data:
-  static:
+    networks:
+    - fastapi_twitter
