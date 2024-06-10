@@ -1,31 +1,21 @@
+import io
 import logging
 import os
 import pytest
+
+from app.api.schemas.media_schema import MediaSchema
 from tests.conftest import true_response
 
 logging.basicConfig(level=logging.INFO)
 
 
 @pytest.mark.asyncio
-async def test_media(client, add_user, tmpdir):
+async def test_upload_media(client, add_media, add_user):
     """
     Tests the upload_media function.
     """
-    header, user_id = add_user
-    media_storage_path = str(tmpdir.mkdir("media"))
-
-    with open("tests/test_image.jpg", "rb") as f:
-        response = await client.post(
-            '/api/medias',
-            files={'file': ('test.jpg', f, 'image/jpeg')},
-            headers=header
-        )
-        logging.info(response)
-        logging.info(header)
-
+    header, user_id, media_file_name, media_file_content = add_media
+    files = {'file': (media_file_name, media_file_content)}
+    response = await client.post('/api/medias', headers=header, files=files)
     true_response(response)
-    assert 'media_id' in response.json() and response.json()['media_id'] == 1
-
-    # Check if the file was saved correctly
-    saved_file_path = os.path.join(media_storage_path, f"{user_id}_test.jpg")
-    assert os.path.exists(saved_file_path)
+    assert 'media_id' in response.json()

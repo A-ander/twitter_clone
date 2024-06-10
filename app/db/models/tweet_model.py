@@ -13,8 +13,18 @@ class Tweet(Base):
     author_id = Column(Integer, ForeignKey('users.id'), nullable=False)
 
     author = relationship('User', back_populates='tweets', lazy="selectin")
-    media = relationship('Media', secondary='tweet_media_association', back_populates='tweet', lazy="selectin")
-    likes = relationship('User', secondary='tweet_likes', back_populates='liked_tweets', lazy="selectin")
+    media = relationship(
+        'Media',
+        secondary='tweet_media_association',
+        back_populates='tweet',
+        lazy="selectin"
+    )
+    likes = relationship(
+        'User',
+        secondary='tweet_likes',
+        back_populates='liked_tweets',
+        lazy="selectin"
+    )
 
 
 tweet_likes = Table(

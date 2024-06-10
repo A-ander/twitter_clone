@@ -1,9 +1,11 @@
 import os
 import shutil
+import tempfile
 import uuid
 from typing import AsyncGenerator
 
 import aiofiles
+import pytest
 import pytest_asyncio
 from httpx import AsyncClient, ASGITransport
 from sqlalchemy import NullPool
@@ -83,3 +85,21 @@ async def add_tweet(test_session, add_user):
     await test_session.commit()
     await test_session.refresh(new_tweet)
     yield header, new_tweet.id
+
+
+@pytest_asyncio.fixture
+async def add_media(test_session, add_user):
+    """Fixture to add a new media to the database"""
+    header, user_id = add_user
+    media_file_name = "test_image.jpg"
+    media_file_path = os.path.join(os.path.dirname(__file__), media_file_name)
+
+    # Open a file and read its contents
+    with open(media_file_path, 'rb') as f:
+        media_file_content = f.read()
+
+    new_media = Media(file_path=media_file_name)
+    test_session.add(new_media)
+    await test_session.commit()
+    await test_session.refresh(new_media)
+    yield header, new_media.id, media_file_name, media_file_content
