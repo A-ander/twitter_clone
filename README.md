@@ -33,7 +33,8 @@ POSTGRES_PASSWORD_TEST=
 
 ### The application structure is organised into modules for different components (routes, schemas, services, database models, etc.).
 
-```
+<details>
+<summary>Click to view/close the project structure</summary><pre><code>
 .
 └── .env
 └── .gitignore
@@ -97,7 +98,8 @@ POSTGRES_PASSWORD_TEST=
     └── test_tweets.py
     └── test_users.py
     └── __init__.py
-```
+</code></pre>
+</details>
 
 > In the app folder, create a media folder if it is not already there.
 
