@@ -17,7 +17,8 @@ async def upload_media_file(
     current_user: User,
     session: AsyncSession
 ):
-    """Uploads a media file and saves it to the database.
+    """
+    A service that uploads a media file and saves it to the database.
 
     Args:
         file (UploadFile): The uploaded file.
@@ -30,7 +31,7 @@ async def upload_media_file(
 
     unique_name = uuid.uuid4()
     file_name = str(unique_name) + str(current_user.id) + file.filename.replace(' ', '_')
-    file_path = os.path.join('/media', file_name)
+    file_path = f'app/media/{file_name}'
     logging.info(f"Saving file to path: {file_path}")
     try:
         async with aiofiles.open(file_path, "wb") as buffer:

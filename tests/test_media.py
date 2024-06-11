@@ -1,16 +1,10 @@
-import io
-import logging
-import os
 import pytest
 
-from app.api.schemas.media_schema import MediaSchema
 from tests.conftest import true_response
-
-logging.basicConfig(level=logging.INFO)
 
 
 @pytest.mark.asyncio
-async def test_upload_media(client, add_media, add_user):
+async def test_upload_media(client, add_media):
     """
     Tests the upload_media function.
     """

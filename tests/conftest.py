@@ -1,18 +1,15 @@
+import logging
 import os
-import shutil
-import tempfile
 import uuid
 from typing import AsyncGenerator
 
-import aiofiles
-import pytest
 import pytest_asyncio
 from httpx import AsyncClient, ASGITransport
 from sqlalchemy import NullPool
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
-    create_async_engine
+    create_async_engine,
 )
 
 from app.core.config import TestSettings

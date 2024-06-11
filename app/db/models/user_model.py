@@ -12,6 +12,18 @@ user_followers = Table(
 
 
 class User(Base):
+    """
+    Represents a user in the database.
+
+    Attributes:
+        id (int): The unique identifier of the user.
+        name (str): The name of the user.
+        api_key (str): The API key associated with the user.
+        tweets (list[Tweet]): The list of Tweet objects created by the user.
+        liked_tweets (list[Tweet]): The list of Tweet objects liked by the user.
+        followers (list[User]): The list of User objects following the user.
+        following (list[User]): The list of User objects the user is following.
+    """
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True)

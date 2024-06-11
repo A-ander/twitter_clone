@@ -21,6 +21,17 @@ async def follow(
         current_user=Depends(get_current_user),
         session: AsyncSession = Depends(get_session)
 ):
+    """
+    Allows the current user to follow another user.
+
+    Args:
+        user_id (int): The ID of the user to follow.
+        current_user (User): The current user.
+        session (AsyncSession): The database session.
+
+    Returns:
+        Result: A response indicating the success or failure of the operation.
+    """
     await follow_user(current_user, user_id, session)
     return Result(result=True)
 
@@ -31,6 +42,17 @@ async def unfollow(
         current_user=Depends(get_current_user),
         session: AsyncSession = Depends(get_session)
 ):
+    """
+    Allows the current user to unfollow another user.
+
+    Args:
+        user_id (int): The ID of the user to unfollow.
+        current_user (User): The current user.
+        session (AsyncSession): The database session.
+
+    Returns:
+        Result: A response indicating the success or failure of the operation.
+    """
     await unfollow_user(current_user, user_id, session)
     return Result(result=True)
 
@@ -40,6 +62,16 @@ async def get_my_profile(
         current_user=Depends(get_current_user),
         session=Depends(get_session)
 ):
+    """
+    Retrieves the profile data of the current user.
+
+    Args:
+        current_user (User): The current user.
+        session (AsyncSession): The database session.
+
+    Returns:
+        UserResponse: A response containing the user's profile data.
+    """
     user_data = await get_user_profile(current_user, session)
     return UserResponse(result=True, user=user_data)
 
@@ -49,5 +81,15 @@ async def get_profile(
         user_id: int = Path(..., gt=0),
         session: AsyncSession = Depends(get_session)
 ):
+    """
+    Retrieves the profile data of a specific user.
+
+    Args:
+        user_id (int): The ID of the user whose profile is to be retrieved.
+        session (AsyncSession): The database session.
+
+    Returns:
+        UserResponse: A response containing the user's profile data.
+    """
     user_data = await get_user_by_id(user_id, session)
     return UserResponse(result=True, user=user_data)

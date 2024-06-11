@@ -2,7 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.schemas.result import Result
-from app.api.schemas.tweet_schema import TweetCreateSchema, TweetResponse, TweetResult, TweetSchema, TweetLikesSchema
+from app.api.schemas.tweet_schema import (
+    TweetCreateSchema,
+    TweetLikesSchema,
+    TweetResponse,
+    TweetResult,
+    TweetSchema,
+)
 from app.db.database import get_session
 from app.db.models.tweet_model import Tweet
 from app.db.models.user_model import User
@@ -10,7 +16,7 @@ from app.services.tweet_service import (
     create_tweet_service,
     delete_tweet_service,
     like_tweet_service,
-    unlike_tweet_service
+    unlike_tweet_service,
 )
 from app.services.tweet_service import get_tweets_list_service
 from app.utils.utils import get_current_user
@@ -23,6 +29,16 @@ async def get_tweets(
         user: User = Depends(get_current_user),
         session: AsyncSession = Depends(get_session)
 ):
+    """
+    Retrieves a list of tweets for the current user.
+
+    Args:
+        user (User): The current user.
+        session (AsyncSession): The database session.
+
+    Returns:
+        TweetResponse: A response containing a list of tweets.
+    """
     tweets = await get_tweets_list_service(user=user, session=session)
     tweet_schemas = [
         TweetSchema(
@@ -50,6 +66,17 @@ async def create_tweet(
         user: User = Depends(get_current_user),
         session: AsyncSession = Depends(get_session)
 ):
+    """
+    Creates a new tweet for the current user.
+
+    Args:
+        tweet_data (TweetCreateSchema): The data for creating the tweet.
+        user (User): The current user.
+        session (AsyncSession): The database session.
+
+    Returns:
+        TweetResult: A response containing the ID of the created tweet.
+    """
     tweet_content = tweet_data.tweet_data
     tweet_media_ids = tweet_data.tweet_media_ids
 
@@ -68,6 +95,17 @@ async def delete_tweet(
         user: User = Depends(get_current_user),
         session: AsyncSession = Depends(get_session),
 ):
+    """
+    Deletes a tweet belonging to the current user.
+
+    Args:
+        tweet_id (int): The ID of the tweet to delete.
+        user (User): The current user.
+        session (AsyncSession): The database session.
+
+    Returns:
+        Result: A response indicating the success or failure of the operation.
+    """
     tweet: Tweet | None = await session.get(Tweet, tweet_id)
     if not tweet:
         raise HTTPException(status_code=404, detail="Tweet not found")
@@ -83,6 +121,17 @@ async def like_tweet(
         user: User = Depends(get_current_user),
         session: AsyncSession = Depends(get_session),
 ):
+    """
+    Allows the current user to like a tweet.
+
+    Args:
+        tweet_id (int): The ID of the tweet to like.
+        user (User): The current user.
+        session (AsyncSession): The database session.
+
+    Returns:
+        Result: A response indicating the success or failure of the operation.
+    """
     tweet: Tweet | None = await session.get(Tweet, tweet_id)
     if not tweet:
         raise HTTPException(status_code=404, detail="Tweet not found")
@@ -96,6 +145,17 @@ async def unlike_tweet(
         user: User = Depends(get_current_user),
         session: AsyncSession = Depends(get_session),
 ):
+    """
+    Allows the current user to unlike a tweet.
+
+    Args:
+        tweet_id (int): The ID of the tweet to unlike.
+        user (User): The current user.
+        session (AsyncSession): The database session.
+
+    Returns:
+        Result: A response indicating the success or failure of the operation.
+    """
     tweet: Tweet | None = await session.get(Tweet, tweet_id)
     if not tweet:
         raise HTTPException(status_code=404, detail="Tweet not found")

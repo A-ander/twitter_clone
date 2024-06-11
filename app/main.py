@@ -1,10 +1,8 @@
 import traceback
 
 from fastapi import FastAPI, Request, HTTPException
-from fastapi.exceptions import RequestValidationError, ResponseValidationError
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
 
 from app.api.routes import media_routes, tweet_routes, user_routes
 from app.db.models.media_model import Media  # noqa
@@ -42,12 +40,3 @@ async def global_exception_handler(request: Request, exc: Exception):
 app.include_router(media_routes.router)
 app.include_router(tweet_routes.router)
 app.include_router(user_routes.router)
-
-# app.mount("/", StaticFiles(directory="static", html=True), name="static")
-#
-# templates = Jinja2Templates(directory="static")
-#
-#
-# @app.get("/")
-# async def root(request: Request):
-#     return templates.TemplateResponse("index.html", context={"request": request})

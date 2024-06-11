@@ -12,6 +12,14 @@ tweet_media_association = Table(
 
 
 class Media(Base):
+    """
+    Represents a media file in the database.
+
+    Attributes:
+        id (int): The unique identifier of the media file.
+        file_path (str): The file path of the media file.
+        tweet (Tweet): The Tweet object associated with the media file.
+    """
     __tablename__ = 'media'
     id = Column(Integer, primary_key=True, index=True)
     file_path = Column(String, nullable=False)
